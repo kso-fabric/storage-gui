@@ -11,7 +11,7 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
-    location /storage/ {
+    location /storage-api/ {
         resolver 127.0.0.11 valid=10s ipv6=off;
 
         set $storage_backend "${STORAGE_API_TARGET}";
