@@ -61,7 +61,7 @@ export async function listFiles(
 }
 
 export async function listDirectories(
-    parentId: string | null
+    directoryId: string | null
 ): Promise<DirectoryMetadata[]> {
     const directories: DirectoryMetadata[] = [];
     const limit = 100;
@@ -72,8 +72,8 @@ export async function listDirectories(
             offset: String(directories.length)
         });
 
-        if (parentId) {
-            params.set('parentId', parentId);
+        if (directoryId) {
+            params.set('directoryId', directoryId);
         }
 
         const response = await request<DirectoryListResponse>(
