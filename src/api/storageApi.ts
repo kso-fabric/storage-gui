@@ -2,8 +2,8 @@
 import type {
     FileMetadata,
     DirectoryMetadata,
-    FileListResponse,
-    DirectoryListResponse,
+    StorageItem,
+    ItemListResponse,
     CreateDirectoryRequest
 } from './models';
 
@@ -31,60 +31,34 @@ async function request<T>(
     return response.json() as Promise<T>;
 }
 
-export async function listFiles(
+export async function listItems(
     directoryId: string | null
-): Promise<FileMetadata[]> {
-    const files: FileMetadata[] = [];
+): Promise<StorageItem[]> {
+    const items: StorageItem[] = [];
     const limit = 100;
+    let page = 0;
 
     while (true) {
         const params = new URLSearchParams({
             limit: String(limit),
-            offset: String(files.length)
+            page: String(page)
         });
 
         if (directoryId) {
             params.set('directoryId', directoryId);
         }
 
-        const response = await request<FileListResponse>(
-            `/files?${params}`
+        const response = await request<ItemListResponse>(
+            `/items?${params}`
         );
 
-        files.push(...response.files);
+        items.push(...response.items);
 
-        if (files.length >= response.total ||
-            response.files.length === 0) {
-            return files;
-        }
-    }
-}
+        page++;
 
-export async function listDirectories(
-    directoryId: string | null
-): Promise<DirectoryMetadata[]> {
-    const directories: DirectoryMetadata[] = [];
-    const limit = 100;
-
-    while (true) {
-        const params = new URLSearchParams({
-            limit: String(limit),
-            offset: String(directories.length)
-        });
-
-        if (directoryId) {
-            params.set('directoryId', directoryId);
-        }
-
-        const response = await request<DirectoryListResponse>(
-            `/directories?${params}`
-        );
-
-        directories.push(...response.directories);
-
-        if (directories.length >= response.total ||
-            response.directories.length === 0) {
-            return directories;
+        if (page >= response.totalPages ||
+            response.items.length === 0) {
+            return items;
         }
     }
 }

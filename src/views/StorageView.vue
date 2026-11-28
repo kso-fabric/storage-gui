@@ -10,14 +10,10 @@ import * as api from '../api/storageApi';
 
 import type {
   DirectoryMetadata,
-  FileMetadata,
   StorageItem
 } from '../api/models';
 
 const directoryPath = ref<DirectoryMetadata[]>([]);
-
-const directories = ref<DirectoryMetadata[]>([]);
-const files = ref<FileMetadata[]>([]);
 
 const selectedItem = ref<StorageItem | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -29,21 +25,15 @@ const currentDirectoryId = computed(
     () => directoryPath.value.at(-1)?.id ?? null
 );
 
-const items = computed<StorageItem[]>(() => [
-  ...directories.value
-      .map(directory => ({
-        ...directory,
-        type: 'directory' as const
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name)),
+const items = ref<StorageItem[]>([]);
 
-  ...files.value
-      .map(file => ({
-        ...file,
-        type: 'file' as const
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name))
-]);
+const directories = computed(() =>
+    items.value.filter(item => item.type === 'DIRECTORY')
+);
+
+const files = computed(() =>
+    items.value.filter(item => item.type === 'FILE')
+);
 
 async function execute(action: () => Promise<void>) {
   if (loading.value) {
@@ -65,13 +55,14 @@ async function execute(action: () => Promise<void>) {
 }
 
 async function loadContent(directoryId: string | null) {
-  const [newDirectories, newFiles] = await Promise.all([
-    api.listDirectories(directoryId),
-    api.listFiles(directoryId)
-  ]);
+  items.value = (await api.listItems(directoryId))
+      .sort((a, b) => {
+        if (a.type !== b.type) {
+          return a.type === 'DIRECTORY' ? -1 : 1;
+        }
 
-  directories.value = newDirectories;
-  files.value = newFiles;
+        return a.name.localeCompare(b.name);
+      });
 }
 
 async function refresh() {
@@ -110,17 +101,9 @@ async function navigate(id: string | null) {
 
 async function showInfo(item: StorageItem) {
   await execute(async () => {
-    if (item.type === 'file') {
-      selectedItem.value = {
-        ...await api.getFile(item.id),
-        type: 'file'
-      };
-    } else {
-      selectedItem.value = {
-        ...await api.getDirectory(item.id),
-        type: 'directory'
-      };
-    }
+    selectedItem.value = item.type === 'FILE'
+        ? await api.getFile(item.id)
+        : await api.getDirectory(item.id);
   });
 }
 
@@ -130,7 +113,7 @@ async function removeItem(item: StorageItem) {
   }
 
   await execute(async () => {
-    if (item.type === 'file') {
+    if (item.type === 'FILE') {
       await api.deleteFile(item.id);
     } else {
       await api.deleteDirectory(item.id);

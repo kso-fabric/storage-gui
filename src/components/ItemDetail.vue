@@ -34,22 +34,18 @@ function formatDate(value: string): string {
       <dt>Created at</dt>
       <dd>{{ formatDate(item.createdAt) }}</dd>
 
-      <template v-if="item.type === 'file'">
-        <dt>Size</dt>
-        <dd>{{ item.size.toLocaleString() }} B</dd>
+      <dt>Updated at</dt>
+      <dd>{{ formatDate(item.updatedAt) }}</dd>
 
+      <dt>Size</dt>
+      <dd>{{ item.size.toLocaleString() }} B</dd>
+
+      <template v-if="item.type === 'FILE'">
         <dt>Content type</dt>
         <dd>{{ item.contentType || '—' }}</dd>
 
         <dt>Checksum (SHA-256)</dt>
-        <dd>{{ item.checksum }}</dd>
-
-        <dt>Updated at</dt>
-        <dd>
-          {{ item.updatedAt
-            ? formatDate(item.updatedAt)
-            : '—' }}
-        </dd>
+        <dd>{{ item.checksum || '—' }}</dd>
       </template>
     </dl>
 

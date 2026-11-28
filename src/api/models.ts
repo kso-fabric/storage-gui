@@ -1,45 +1,36 @@
-
 export interface Metadata {
     description?: string | null;
     tags?: string[];
     custom?: Record<string, unknown> | null;
 }
 
-export interface DirectoryMetadata {
-    id: string;
-    name: string;
-    parentId?: string | null;
-    createdAt: string;
-    additionalData?: Metadata;
-}
+export type ItemType = 'FILE' | 'DIRECTORY';
 
-export interface FileMetadata {
+export interface StorageItem {
     id: string;
     name: string;
-    directoryId?: string | null;
+    type: ItemType;
+    parentId?: string | null;
     size: number;
     contentType?: string;
-    checksum: string;
+    checksum?: string;
     createdAt: string;
-    updatedAt?: string;
+    updatedAt: string;
     additionalData?: Metadata;
 }
 
-export interface FileListResponse {
-    files: FileMetadata[];
-    total: number;
-}
+export type DirectoryMetadata = StorageItem;
+export type FileMetadata = StorageItem;
 
-export interface DirectoryListResponse {
-    directories: DirectoryMetadata[];
+export interface ItemListResponse {
+    items: StorageItem[];
     total: number;
+    totalPages: number;
+    page: number;
+    limit: number;
 }
 
 export interface CreateDirectoryRequest {
     name: string;
     parentId?: string;
 }
-
-export type StorageItem =
-    | (DirectoryMetadata & { type: 'directory' })
-    | (FileMetadata & { type: 'file' });

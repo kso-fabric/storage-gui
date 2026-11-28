@@ -1,6 +1,5 @@
-
 <script setup lang="ts">
-import type { StorageItem } from '../api/models';
+import type {StorageItem} from '../api/models';
 
 defineProps<{
   items: StorageItem[];
@@ -42,10 +41,11 @@ function formatSize(bytes: number): string {
     <tr
         v-for="item in items"
         :key="`${item.type}-${item.id}`"
+        @click="emit('info', item)"
     >
       <td>
         <button
-            v-if="item.type === 'directory'"
+            v-if="item.type === 'DIRECTORY'"
             class="directory-name"
             @click="emit('open', item.id)"
         >
@@ -58,21 +58,15 @@ function formatSize(bytes: number): string {
       </td>
 
       <td>
-        {{ item.type === 'file'
-          ? formatSize(item.size)
-          : '—' }}
+        {{ formatSize(item.size) }}
       </td>
 
       <td class="actions">
         <button
-            v-if="item.type === 'file'"
+            v-if="item.type === 'FILE'"
             @click="emit('download', item.id)"
         >
           Download
-        </button>
-
-        <button @click="emit('info', item)">
-          Info
         </button>
 
         <button @click="emit('delete', item)">
