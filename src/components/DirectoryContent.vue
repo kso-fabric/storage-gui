@@ -47,7 +47,7 @@ function formatSize(bytes: number): string {
         <button
             v-if="item.type === 'DIRECTORY'"
             class="directory-name"
-            @click="emit('open', item.id)"
+            @click.stop="emit('open', item.id)"
         >
           📁 {{ item.name }}
         </button>
@@ -64,12 +64,12 @@ function formatSize(bytes: number): string {
       <td class="actions">
         <button
             v-if="item.type === 'FILE'"
-            @click="emit('download', item.id)"
+            @click.stop="emit('download', item.id)"
         >
           Download
         </button>
 
-        <button @click="emit('delete', item)">
+        <button @click.stop="emit('delete', item)">
           Delete
         </button>
       </td>
